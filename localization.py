@@ -58,3 +58,14 @@ def get_text(key, lang="en", *args):
     if args:
         return text.format(*args)
     return text
+
+import pygame
+import os
+
+def get_font(size):
+    # 直接使用 Android 系统自带的中文字体，最稳妥！
+    try:
+        return pygame.font.SysFont("droid sans fallback", size)
+    except:
+        # 如果还是不行，就用默认字体（虽然可能不显示中文，但绝对不闪退）
+        return pygame.font.Font(None, size)
