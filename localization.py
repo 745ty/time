@@ -59,13 +59,41 @@ def get_text(key, lang="en", *args):
         return text.format(*args)
     return text
 
+import sys
 import pygame
 import os
 
 def get_font(size):
-    # 直接使用 Android 系统自带的中文字体，最稳妥！
+    """
+    Get the system default font that supports Chinese.
+    """
+    # Android: Standard Chinese font
+    if "ANDROID_ARGUMENT" in os.environ:
+        try:
+            return pygame.font.SysFont("droid sans fallback", size)
+        except:
+            return pygame.font.Font(None, size)
+
+    # Windows: Standard Chinese fonts
+    if sys.platform == "win32":
+        # Try finding system fonts by name first
+        font_names = ["microsoftyahei", "simhei", "simsun", "kaiti"]
+        for name in font_names:
+            try:
+                # SysFont is the standard way to get a system font
+                font = pygame.font.SysFont(name, size)
+                # Check if it actually loaded a font that isn't the default alias
+                if font: 
+                    return font
+            except:
+                continue
+                
+    # Linux/Mac/Other: Try common fallback
     try:
-        return pygame.font.SysFont("droid sans fallback", size)
+        return pygame.font.SysFont("wenquanyimicrohei", size)
     except:
-        # 如果还是不行，就用默认字体（虽然可能不显示中文，但绝对不闪退）
-        return pygame.font.Font(None, size)
+        pass
+
+    # Final Fallback: The absolute default font (English only)
+    # If this is reached, Chinese will be boxes, but there is no other option without downloading.
+    return pygame.font.Font(None, size)
